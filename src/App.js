@@ -1,25 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
+import './App.css'
+import LandingPage from './LandingPage'
+import Login from './Login'
+import SignUp from './SignUp'
+import Profile from './Profile'
+import Error from './Error'
+import Loader from './Loader'
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+  const [currentForm, setCurrentForm] = useState('login')
 
-export default App;
+  const toggleForm = (formName) => {
+    setCurrentForm(formName)
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route exact path='/' element={<LandingPage />} />
+        <Route
+          exact
+          path='/login'
+          element={
+            <div className='App'>
+              {currentForm == 'login' ? (
+                <Login onFormSwitch={toggleForm} />
+              ) : (
+                <SignUp onFormSwitch={toggleForm} />
+              )}
+            </div>
+          }
+        />
+        <Route exact path='/profile' element={<Profile />} />
+        <Route path='*' element={<Error />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+// <Navigate to='/' replace />
+
+export default App

@@ -2,8 +2,10 @@ import React from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { Grid } from '@material-ui/core'
+import { useNavigate } from 'react-router-dom'
 import { TextField, Button } from '@mui/material'
 import { BrowserView, MobileView } from 'react-device-detect'
+import axios from 'axios'
 import './SignUp.css'
 
 const FORM_VALIDATION = Yup.object({
@@ -24,6 +26,8 @@ const FORM_VALIDATION = Yup.object({
 })
 
 function SignUp(props) {
+  const Navigate = useNavigate()
+
   const formik = useFormik({
     initialValues: {
       firstName: '',
@@ -35,16 +39,38 @@ function SignUp(props) {
       password: '',
       confirmPassword: '',
     },
-    onSubmit: (values) => {
-      console.log(JSON.stringify(values))
-    },
     validationSchema: FORM_VALIDATION,
   })
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const data = formik.values
+    try {
+      if (data.password == data.confirmPassword) {
+        const url = 'http://localhost:4000/api/users'
+        const { data: res } = await axios.post(url, data)
+        console.log(res.message)
+        alert(res.message)
+        Navigate('/login')
+      } else {
+        alert('Passwords do not Match!')
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status <= 500
+      ) {
+        console.log(error.response.data.message)
+        alert(error.response.data.message)
+      }
+    }
+  }
 
   return (
     <>
       <BrowserView>
-        <form style={{ width: '25vw' }} onSubmit={formik.handleSubmit}>
+        <form style={{ width: '25vw' }} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <span> SignUp </span>

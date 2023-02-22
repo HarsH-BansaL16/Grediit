@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { Grid } from '@material-ui/core'
 import { TextField, Button } from '@mui/material'
+import axios from 'axios'
 import './Login.css'
 
 import * as location from './Loading.json'
@@ -60,18 +61,30 @@ function Login(props) {
       userName: '',
       password: '',
     },
-    onSubmit: (values) => {
-      console.log(JSON.stringify(values))
-      if (
-        formik.values.userName == 'admin' &&
-        formik.values.password == 'admin'
-      ) {
-        localStorage.setItem('isLoggedIn?', 1)
-        Navigate('/')
-      }
-    },
     validationSchema: FORM_VALIDATION,
   })
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const data = formik.values
+    try {
+      const url = 'http://localhost:4000/api/auth'
+      const { data: res } = await axios.post(url, data)
+      console.log(res.message)
+      alert(res.message)
+      localStorage.setItem('isLoggedIn?',1)
+      Navigate('/profile')
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status <= 500
+      ) {
+        console.log(error.response.data.message)
+        alert(error.response.data.message)
+      }
+    }
+  }
 
   var loggedIn = localStorage.getItem('isLoggedIn?')
   useEffect(() => {
@@ -84,7 +97,13 @@ function Login(props) {
     <>
       {!completed ? (
         <div
-          style={{ position: 'absolute', top: '35%', left: 'calc(50% - 50px)' ,background: '#222222', borderRadius:'100px'}}
+          style={{
+            position: 'absolute',
+            top: '35%',
+            left: 'calc(50% - 50px)',
+            background: '#222222',
+            borderRadius: '100px',
+          }}
         >
           {!loading ? (
             <Lottie options={locationDefaultOptions} height={120} width={120} />
@@ -97,7 +116,7 @@ function Login(props) {
           <Grid container spacing={2}>
             <Grid item xs={8}></Grid>
             <Grid item xs={4}>
-              <form style={{ width: '25vw' }} onSubmit={formik.handleSubmit}>
+              <form style={{ width: '25vw' }} onSubmit={handleSubmit}>
                 <span className='loginSpan'> Login </span>
                 <TextField
                   label='User Name'

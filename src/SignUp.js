@@ -47,7 +47,7 @@ function SignUp(props) {
     const data = formik.values
     try {
       if (data.password == data.confirmPassword) {
-        const url = 'http://localhost:4000/api/users'
+        const url = 'http://localhost:8000/api/users'
         const { data: res } = await axios.post(url, data)
         console.log(res.message)
         alert(res.message)
